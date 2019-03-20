@@ -1,0 +1,68 @@
+{
+	"ImportPath": "github.com/4geeks/pex-cmd",
+	"GoVersion": "go1.11",
+	"GodepVersion": "v80",
+	"Deps": [
+		{
+			"ImportPath": "github.com/IBM-Cloud/go-cloudant",
+			"Rev": "0ded5c7f524e9b5c34a69edfe04de5d03436f10f"
+		},
+		{
+			"ImportPath": "github.com/inconshreveable/mousetrap",
+			"Comment": "v1.0",
+			"Rev": "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
+		},
+		{
+			"ImportPath": "github.com/jlaffaye/ftp",
+			"Rev": "47f21d10f0ee0d0921769ca3618072e53c12c5a3"
+		},
+		{
+			"ImportPath": "github.com/joho/godotenv",
+			"Comment": "v1.3.0-5-g69ed1d9",
+			"Rev": "69ed1d913aa885da390dd6de9febf063d101b097"
+		},
+		{
+			"ImportPath": "github.com/joho/godotenv/autoload",
+			"Comment": "v1.3.0-5-g69ed1d9",
+			"Rev": "69ed1d913aa885da390dd6de9febf063d101b097"
+		},
+		{
+			"ImportPath": "github.com/mitchellh/mapstructure",
+			"Comment": "v1.1.2",
+			"Rev": "3536a929edddb9a5b34bd6861dc4a9647cb459fe"
+		},
+		{
+			"ImportPath": "github.com/moul/http2curl",
+			"Comment": "v1.0.0-2-gfaeffb3",
+			"Rev": "faeffb3553568c6ecaa9c103c09dea941ca9c570"
+		},
+		{
+			"ImportPath": "github.com/parnurzeal/gorequest",
+			"Comment": "v0.2.15-31-gb060445",
+			"Rev": "b0604454e3c35c21d4c86e4771dc1e24c896cdd3"
+		},
+		{
+			"ImportPath": "github.com/pkg/errors",
+			"Comment": "v0.8.1-22-gffb6e22",
+			"Rev": "ffb6e22f01932bf7ac35e0bad9be11f01d1c8685"
+		},
+		{
+			"ImportPath": "github.com/spf13/cobra",
+			"Comment": "v0.0.3-12-g7547e83",
+			"Rev": "7547e83b2d85fd1893c7d76916f67689d761fecb"
+		},
+		{
+			"ImportPath": "github.com/spf13/pflag",
+			"Comment": "v1.0.3-8-g24fa697",
+			"Rev": "24fa6976df40757dce6aea913e7b81ade90530e1"
+		},
+		{
+			"ImportPath": "github.com/timjacobi/go-couchdb",
+			"Rev": "5f9d2a1a29e5b126e51255e92f8c420b0c7a60ac"
+		},
+		{
+			"ImportPath": "golang.org/x/net/publicsuffix",
+			"Rev": "9f648a60d9775ef5c977e7669d1673a7a67bef33"
+		}
+	]
+}
