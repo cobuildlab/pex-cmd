@@ -1,0 +1,11 @@
+ version: '3.4'
+
+ services:
+   cmd:
+     build: 
+        context: .
+        target: builder
+     command: "make run"
+     volumes:
+      - "./:/go/src/github.com/4geeks/pex-cmd"
+

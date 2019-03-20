@@ -1,6 +1,6 @@
 {
 	"ImportPath": "github.com/4geeks/pex-cmd",
-	"GoVersion": "go1.11",
+	"GoVersion": "go1.12",
 	"GodepVersion": "v80",
 	"Deps": [
 		{
