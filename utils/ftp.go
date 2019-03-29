@@ -30,7 +30,17 @@ func GetConnectionFTP(host, port, username, password string) (client *ftp.Server
 }
 
 //DownloadGzipFileFTP Download a gzip file from an FTP entry in the specified path
-func DownloadGzipFileFTP(client *ftp.ServerConn, entryName string, path string) (err error) {
+func DownloadGzipFileFTP(entryName string, path string) (err error) {
+	client, err := GetConnectionFTP(
+		FTPHost, FTPPort,
+		FTPUsername, FTPPassword,
+	)
+	if err != nil {
+		return
+	}
+	defer client.Quit()
+	defer client.Logout()
+
 	filePath := filepath.Join(path, entryName)
 
 	exist, err := CheckExistence(filePath)

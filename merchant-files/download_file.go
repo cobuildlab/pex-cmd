@@ -41,21 +41,9 @@ func DownloadFile(filename string) (err error) {
 		}
 	}
 
-	client, err := utils.GetConnectionFTP(
-		utils.FTPHost, utils.FTPPort,
-		utils.FTPUsername, utils.FTPPassword,
-	)
-
-	if err != nil {
-		return
-	}
-
-	defer client.Quit()
-	defer client.Logout()
-
 	fileDownload := filepath.Join(utils.FTPPathFiles, filename)
 
-	if err = utils.DownloadGzipFileFTP(client, filename, utils.FTPPathFiles); err != nil {
+	if err = utils.DownloadGzipFileFTP(filename, utils.FTPPathFiles); err != nil {
 		return
 	}
 
