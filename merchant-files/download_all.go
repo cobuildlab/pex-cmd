@@ -72,7 +72,7 @@ func DownloadAll(limitSize uint64) (err error) {
 					fmt.Println("╭─Downloading", entry.Name, "...", fmt.Sprintf("%d/%d", i+1, len(entries)))
 					fmt.Println("├─⇢ Size:", entry.Size)
 					if err = utils.DownloadGzipFileFTP(entry.Name, utils.FTPPathFiles); err != nil {
-						return
+						continue
 					}
 					countDownloadFiles++
 
