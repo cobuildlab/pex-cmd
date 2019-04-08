@@ -192,6 +192,10 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 					break
 				}
 
+				if product.Price.Currency != "USD" || product.Discount.Currency != "USD" {
+					break
+				}
+
 				wg.Add(1)
 
 				queueUpload <- true
