@@ -188,6 +188,8 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 			case "product":
 				//Save products
 
+				queueUpload <- true
+
 				if err = dec.DecodeElement(&product, &start); err != nil {
 					break
 				}
@@ -197,12 +199,10 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 				}
 
 				wg.Add(1)
-
-				queueUpload <- true
 				go func(wg *sync.WaitGroup, queueUpload <-chan bool, db databases.DB, productLocal models.Product, productsRemoteID []string) {
 					defer func(wg *sync.WaitGroup) {
-						wg.Done()
 						<-queueUpload
+						wg.Done()
 					}(wg)
 
 					for {
