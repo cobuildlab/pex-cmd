@@ -18,6 +18,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var queueUpload = make(chan bool, 100000)
 var ch chan int
 
 //CmdUploadFile Command to upload a merchant file to the database
@@ -97,7 +98,6 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 	}
 	dec = xml.NewDecoder(fileXML)
 
-	var gorutinesCount int64
 	chDBP := make(chan databases.DB)
 	chDBM := make(chan databases.DB)
 	chIDs := make(chan []string)
@@ -188,20 +188,23 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 			case "product":
 				//Save products
 
+				queueUpload <- true
+
 				if err = dec.DecodeElement(&product, &start); err != nil {
 					break
 				}
 
-				if atomic.LoadInt64(&gorutinesCount) > 100000 {
-					wg.Wait()
+				if product.Price.Currency != "USD" || product.Discount.Currency != "USD" {
+					break
 				}
 
 				wg.Add(1)
-				atomic.AddInt64(&gorutinesCount, 1)
+				go func(wg *sync.WaitGroup, queueUpload <-chan bool, db databases.DB, productLocal models.Product, productsRemoteID []string) {
+					defer func(wg *sync.WaitGroup) {
+						<-queueUpload
+						wg.Done()
+					}(wg)
 
-				go func(wg *sync.WaitGroup, db databases.DB, productLocal models.Product, productsRemoteID []string) {
-					defer atomic.AddInt64(&gorutinesCount, -1)
-					defer wg.Done()
 					for {
 						productLocal.Merchant = merchantLocal
 
@@ -267,7 +270,7 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 						break
 					}
 
-				}(&wg, dbProducts, product, productsRemoteID)
+				}(&wg, queueUpload, dbProducts, product, productsRemoteID)
 
 			}
 

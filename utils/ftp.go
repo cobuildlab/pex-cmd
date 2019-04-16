@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/4geeks/pex-cmd/errors"
 
@@ -13,7 +14,7 @@ import (
 
 //GetConnectionFTP Returns a connection to the FTP server
 func GetConnectionFTP(host, port, username, password string) (client *ftp.ServerConn, err error) {
-	client, err = ftp.Dial(fmt.Sprintf("%s:%s", host, port))
+	client, err = ftp.DialTimeout(fmt.Sprintf("%s:%s", host, port), time.Hour*20)
 	if err != nil {
 		err = errors.ErrorConnection
 
@@ -30,7 +31,17 @@ func GetConnectionFTP(host, port, username, password string) (client *ftp.Server
 }
 
 //DownloadGzipFileFTP Download a gzip file from an FTP entry in the specified path
-func DownloadGzipFileFTP(client *ftp.ServerConn, entryName string, path string) (err error) {
+func DownloadGzipFileFTP(entryName string, path string) (err error) {
+	client, err := GetConnectionFTP(
+		FTPHost, FTPPort,
+		FTPUsername, FTPPassword,
+	)
+	if err != nil {
+		return
+	}
+	defer client.Quit()
+	defer client.Logout()
+
 	filePath := filepath.Join(path, entryName)
 
 	exist, err := CheckExistence(filePath)
