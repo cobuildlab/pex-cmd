@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/4geeks/pex-cmd/errors"
+	"github.com/cobuildlab/pex-cmd/errors"
 )
 
 //CheckIntegrityGzip Verify the integrity of a compressed file with gzip

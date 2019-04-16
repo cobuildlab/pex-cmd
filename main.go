@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	merchants "github.com/4geeks/pex-cmd/merchant-files"
+	merchants "github.com/cobuildlab/pex-cmd/merchant-files"
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 )

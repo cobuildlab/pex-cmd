@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/4geeks/pex-cmd/errors"
-	"github.com/4geeks/pex-cmd/models"
 	cloudant "github.com/IBM-Cloud/go-cloudant"
+	"github.com/cobuildlab/pex-cmd/errors"
+	"github.com/cobuildlab/pex-cmd/models"
 	couchdb "github.com/timjacobi/go-couchdb"
 )
 

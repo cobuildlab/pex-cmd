@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/4geeks/pex-cmd/utils"
+	"github.com/cobuildlab/pex-cmd/utils"
 )
 
 const (

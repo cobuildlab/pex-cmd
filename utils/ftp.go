@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/4geeks/pex-cmd/errors"
+	"github.com/cobuildlab/pex-cmd/errors"
 
 	"github.com/jlaffaye/ftp"
 )

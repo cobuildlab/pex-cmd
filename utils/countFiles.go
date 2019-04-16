@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/4geeks/pex-cmd/errors"
+	"github.com/cobuildlab/pex-cmd/errors"
 )
 
 //CountFiles Count the files in a specified path

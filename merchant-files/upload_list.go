@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/4geeks/pex-cmd/utils"
+	"github.com/cobuildlab/pex-cmd/utils"
 	"github.com/spf13/cobra"
 )
 

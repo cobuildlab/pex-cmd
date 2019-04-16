@@ -1,8 +1,8 @@
 package products
 
 import (
-	"github.com/4geeks/pex-cmd/databases"
-	"github.com/4geeks/pex-cmd/models"
+	"github.com/cobuildlab/pex-cmd/databases"
+	"github.com/cobuildlab/pex-cmd/models"
 )
 
 //GetIDs Get all product IDs
