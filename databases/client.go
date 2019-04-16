@@ -1,8 +1,8 @@
 package databases
 
 import (
-	"github.com/4geeks/pex-cmd/errors"
 	cloudant "github.com/IBM-Cloud/go-cloudant"
+	"github.com/cobuildlab/pex-cmd/errors"
 )
 
 //NewClient Returns the interface of a database client

@@ -3,7 +3,7 @@ package databases
 import (
 	"time"
 
-	"github.com/4geeks/pex-cmd/errors"
+	"github.com/cobuildlab/pex-cmd/errors"
 )
 
 var queueWriter = make(chan bool, DBMaxWriting)

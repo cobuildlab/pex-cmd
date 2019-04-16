@@ -3,7 +3,7 @@ package utils
 import (
 	"os"
 
-	"github.com/4geeks/pex-cmd/errors"
+	"github.com/cobuildlab/pex-cmd/errors"
 )
 
 //CheckExistence Verify the existence of a file or directory

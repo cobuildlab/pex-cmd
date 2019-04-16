@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/4geeks/pex-cmd/errors"
-	"github.com/4geeks/pex-cmd/utils"
+	"github.com/cobuildlab/pex-cmd/errors"
+	"github.com/cobuildlab/pex-cmd/utils"
 	"github.com/spf13/cobra"
 )
 

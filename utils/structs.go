@@ -3,7 +3,7 @@ package utils
 import (
 	"time"
 
-	"github.com/4geeks/pex-cmd/models"
+	"github.com/cobuildlab/pex-cmd/models"
 )
 
 //FileInfo Custom FileInfo

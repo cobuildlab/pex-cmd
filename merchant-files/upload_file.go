@@ -10,10 +10,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/4geeks/pex-cmd/databases"
-	"github.com/4geeks/pex-cmd/models"
-	"github.com/4geeks/pex-cmd/services/products"
-	"github.com/4geeks/pex-cmd/utils"
+	"github.com/cobuildlab/pex-cmd/databases"
+	"github.com/cobuildlab/pex-cmd/models"
+	"github.com/cobuildlab/pex-cmd/services/products"
+	"github.com/cobuildlab/pex-cmd/utils"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 )
