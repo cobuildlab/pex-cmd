@@ -14,7 +14,7 @@ build: prepare clean
 install: prepare clean
 	CGO_ENABLED=0 GOOS=linux godep go install -a -installsuffix cgo
 
-run:
+run: prepare
 	godep go run main.go
 
 .PHONY: install prepare build clean run
