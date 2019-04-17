@@ -201,8 +201,8 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 				wg.Add(1)
 				go func(wg *sync.WaitGroup, queueUpload <-chan bool, db databases.DB, productLocal models.Product, productsRemoteID []string) {
 					defer func(wg *sync.WaitGroup) {
-						<-queueUpload
 						wg.Done()
+						<-queueUpload
 					}(wg)
 
 					for {
