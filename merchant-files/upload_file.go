@@ -287,7 +287,13 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 	if err != nil {
 		return
 	}
+
 	wg.Wait()
+
+	err = os.Remove(pathFile)
+	if err != nil {
+		return
+	}
 
 	return
 }
