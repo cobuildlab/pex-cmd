@@ -3,7 +3,7 @@ package utils
 import (
 	"testing"
 
-	"github.com/4geeks/pex-cmd/utils"
+	"github.com/cobuildlab/pex-cmd/utils"
 	"github.com/jlaffaye/ftp"
 	"github.com/stretchr/testify/assert"
 )
