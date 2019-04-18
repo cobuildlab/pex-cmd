@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/cobuildlab/pex-cmd/errors"
 	"github.com/cobuildlab/pex-cmd/utils"
@@ -27,7 +28,7 @@ var CmdDownloadAll = &cobra.Command{
 
 //DownloadAll Download all merchant files
 func DownloadAll(limitSize uint64) (err error) {
-	var countDownloadFiles, countDecompressFiles uint64
+	var countDownloadFiles, countDecompressFiles, countFailedDownloads uint64
 
 	if ok, _ := utils.CheckExistence(utils.FTPPathFiles); !ok {
 		err = os.MkdirAll(utils.FTPPathFiles, 0777)
@@ -57,6 +58,7 @@ func DownloadAll(limitSize uint64) (err error) {
 		return
 	}
 
+	start := time.Now()
 	for i, entry := range entries {
 		if entry.Type == 0 {
 			if entry.Size > limitSize {
@@ -74,6 +76,7 @@ func DownloadAll(limitSize uint64) (err error) {
 					if err = utils.DownloadGzipFileFTP(entry.Name, utils.FTPPathFiles); err != nil {
 						fmt.Println("[x]", "An error has occurred downloading the file:", entry.Name, fmt.Sprintf("%d/%d", i+1, len(entries)))
 						fmt.Println()
+						countFailedDownloads++
 						continue
 					}
 					countDownloadFiles++
@@ -90,6 +93,13 @@ func DownloadAll(limitSize uint64) (err error) {
 
 		}
 	}
+
+	fmt.Println("├─⇢ ...", "Discharged!")
+	fmt.Println("│")
+	fmt.Println("├──⇢ Downloaded files:", countDownloadFiles)
+	fmt.Println("├──⇢ Failed downloads:", countFailedDownloads)
+	fmt.Println("├──⇢ Unzipped files:", countDownloadFiles)
+	fmt.Println("╰──⇢ Duration:", time.Since(start))
 
 	return
 }
