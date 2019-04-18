@@ -17,8 +17,18 @@ var CmdDownloadAll = &cobra.Command{
 	Short: "Download all the merchants files of the FTP server",
 	Long:  "Download all the merchants files of the FTP server",
 	Run: func(cmd *cobra.Command, args []string) {
+		exist, err := utils.CheckExistence("./download.lock")
+		if err != nil {
+			return
+		}
+
+		if exist {
+			os.Exit(0)
+		}
+
 		fmt.Println("* Limit file size:", LimitSize)
-		err := DownloadAll(LimitSize)
+
+		err = DownloadAll(LimitSize)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -100,6 +110,11 @@ func DownloadAll(limitSize uint64) (err error) {
 	fmt.Println("├──⇢ Failed downloads:", countFailedDownloads)
 	fmt.Println("├──⇢ Unzipped files:", countDownloadFiles)
 	fmt.Println("╰──⇢ Duration:", time.Since(start))
+
+	err = os.Remove("./upload.lock")
+	if err != nil {
+		return
+	}
 
 	return
 }
