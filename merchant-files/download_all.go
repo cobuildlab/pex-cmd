@@ -2,6 +2,7 @@ package merchants
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -26,6 +27,13 @@ var CmdDownloadAll = &cobra.Command{
 			fmt.Println(TimeNow(), "The process could not be executed because of the existence of the file download.lock")
 			os.Exit(0)
 		}
+
+		emptyFile, err := os.Create("./download.lock")
+		if err != nil {
+			log.Fatal(err)
+			os.Exit(0)
+		}
+		emptyFile.Close()
 
 		fmt.Println(TimeNow(), "* Limit file size:", LimitSize)
 
