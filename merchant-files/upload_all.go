@@ -2,6 +2,7 @@ package merchants
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -24,6 +25,13 @@ var CmdUploadAll = &cobra.Command{
 			fmt.Println(TimeNow(), "The process could not be executed because of the existence of the file upload.lock")
 			os.Exit(0)
 		}
+
+		emptyFile, err := os.Create("./upload.lock")
+		if err != nil {
+			log.Fatal(err)
+			os.Exit(0)
+		}
+		emptyFile.Close()
 
 		fileList, err := UploadList()
 		if err != nil {
