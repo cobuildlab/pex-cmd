@@ -24,3 +24,5 @@ data/rakuten
 # Vim
 tags
 vim-session
+
+*.lock
