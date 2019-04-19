@@ -21,6 +21,7 @@ var CmdUploadAll = &cobra.Command{
 		}
 
 		if exist {
+			fmt.Println(TimeNow(), "The process could not be executed because of the existence of the file upload.lock")
 			os.Exit(0)
 		}
 

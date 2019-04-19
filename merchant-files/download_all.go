@@ -23,6 +23,7 @@ var CmdDownloadAll = &cobra.Command{
 		}
 
 		if exist {
+			fmt.Println(TimeNow(), "The process could not be executed because of the existence of the file download.lock")
 			os.Exit(0)
 		}
 
@@ -111,7 +112,7 @@ func DownloadAll(limitSize uint64) (err error) {
 	fmt.Println(TimeNow(), "├──⇢ Unzipped files:", countDownloadFiles)
 	fmt.Println(TimeNow(), "╰──⇢ Duration:", time.Since(start))
 
-	err = os.Remove("./upload.lock")
+	err = os.Remove("./download.lock")
 	if err != nil {
 		return
 	}
