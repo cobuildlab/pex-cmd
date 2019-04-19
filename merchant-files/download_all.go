@@ -26,11 +26,11 @@ var CmdDownloadAll = &cobra.Command{
 			os.Exit(0)
 		}
 
-		fmt.Println("* Limit file size:", LimitSize)
+		fmt.Println(TimeNow(), "* Limit file size:", LimitSize)
 
 		err = DownloadAll(LimitSize)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println(TimeNow(), err)
 			return
 		}
 	},
@@ -72,7 +72,7 @@ func DownloadAll(limitSize uint64) (err error) {
 	for i, entry := range entries {
 		if entry.Type == 0 {
 			if entry.Size > limitSize {
-				fmt.Println("[x]", entry.Name, "Out of size limit:", entry.Size, fmt.Sprintf("%d/%d", i+1, len(entries)))
+				fmt.Println(TimeNow(), "[x]", entry.Name, "Out of size limit:", entry.Size, fmt.Sprintf("%d/%d", i+1, len(entries)))
 				fmt.Println()
 			} else {
 				fileDownload := filepath.Join(utils.FTPPathFiles, entry.Name)
@@ -81,10 +81,10 @@ func DownloadAll(limitSize uint64) (err error) {
 
 				if fileExt == MerchantFileCompressExt {
 
-					fmt.Println("╭─Downloading", entry.Name, "...", fmt.Sprintf("%d/%d", i+1, len(entries)))
-					fmt.Println("├─⇢ Size:", entry.Size)
+					fmt.Println(TimeNow(), "╭─Downloading", entry.Name, "...", fmt.Sprintf("%d/%d", i+1, len(entries)))
+					fmt.Println(TimeNow(), "├─⇢ Size:", entry.Size)
 					if err = utils.DownloadGzipFileFTP(entry.Name, utils.FTPPathFiles); err != nil {
-						fmt.Println("[x]", "An error has occurred downloading the file:", entry.Name, fmt.Sprintf("%d/%d", i+1, len(entries)))
+						fmt.Println(TimeNow(), "[x]", "An error has occurred downloading the file:", entry.Name, fmt.Sprintf("%d/%d", i+1, len(entries)))
 						fmt.Println()
 						countFailedDownloads++
 						continue
@@ -96,7 +96,7 @@ func DownloadAll(limitSize uint64) (err error) {
 					}
 					countDecompressFiles++
 
-					fmt.Println("╰─...", "Discharged", entry.Name)
+					fmt.Println(TimeNow(), "╰─...", "Discharged", entry.Name)
 					fmt.Println()
 				}
 			}
@@ -104,12 +104,12 @@ func DownloadAll(limitSize uint64) (err error) {
 		}
 	}
 
-	fmt.Println("├─⇢ ...", "Discharged!")
-	fmt.Println("│")
-	fmt.Println("├──⇢ Downloaded files:", countDownloadFiles)
-	fmt.Println("├──⇢ Failed downloads:", countFailedDownloads)
-	fmt.Println("├──⇢ Unzipped files:", countDownloadFiles)
-	fmt.Println("╰──⇢ Duration:", time.Since(start))
+	fmt.Println(TimeNow(), "├─⇢ ...", "Discharged!")
+	fmt.Println(TimeNow(), "│")
+	fmt.Println(TimeNow(), "├──⇢ Downloaded files:", countDownloadFiles)
+	fmt.Println(TimeNow(), "├──⇢ Failed downloads:", countFailedDownloads)
+	fmt.Println(TimeNow(), "├──⇢ Unzipped files:", countDownloadFiles)
+	fmt.Println(TimeNow(), "╰──⇢ Duration:", time.Since(start))
 
 	err = os.Remove("./upload.lock")
 	if err != nil {

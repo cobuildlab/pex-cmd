@@ -16,7 +16,7 @@ var CmdDownloadList = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fileList, err := DownloadList()
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println(TimeNow(), err)
 			return
 		}
 		var count uint64
@@ -24,14 +24,14 @@ var CmdDownloadList = &cobra.Command{
 		for _, v := range fileList {
 			count++
 			totalSize += v.Size
-			fmt.Println("╭─Filename:", v.Name)
-			fmt.Println("├─⇢ Size:", v.Size)
-			fmt.Println("╰─⇢ Time:", v.ModTime)
+			fmt.Println(TimeNow(), "╭─Filename:", v.Name)
+			fmt.Println(TimeNow(), "├─⇢ Size:", v.Size)
+			fmt.Println(TimeNow(), "╰─⇢ Time:", v.ModTime)
 			fmt.Println()
 		}
-		fmt.Println("╭─Total files:", count)
-		fmt.Println("╰─Total size:", totalSize)
-		fmt.Println("*The total size is the sum of the size of all files on the FTP server and should not be used as an exact reference*")
+		fmt.Println(TimeNow(), "╭─Total files:", count)
+		fmt.Println(TimeNow(), "╰─Total size:", totalSize)
+		fmt.Println(TimeNow(), "*The total size is the sum of the size of all files on the FTP server and should not be used as an exact reference*")
 	},
 }
 

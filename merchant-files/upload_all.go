@@ -26,25 +26,25 @@ var CmdUploadAll = &cobra.Command{
 
 		fileList, err := UploadList()
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println(TimeNow(), err)
 			return
 		}
 
 		for i, v := range fileList {
-			fmt.Println("╭─Uploading", v.Name, "...", fmt.Sprintf("%d/%d", i+1, len(fileList)))
+			fmt.Println(TimeNow(), "╭─Uploading", v.Name, "...", fmt.Sprintf("%d/%d", i+1, len(fileList)))
 
 			start := time.Now()
 
 			totalProductsUpload, totalProductsUpdated, err := UploadFile(v.Name, Verbose)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Println(TimeNow(), err)
 				return
 			}
-			fmt.Println("├─⇢ ...", "Uploaded!", v.Name)
-			fmt.Println("│")
-			fmt.Println("├──⇢ Uploaded products:", totalProductsUpload)
-			fmt.Println("├──⇢ Updated products:", totalProductsUpdated)
-			fmt.Println("╰──⇢ Duration:", time.Since(start))
+			fmt.Println(TimeNow(), "├─⇢ ...", "Uploaded!", v.Name)
+			fmt.Println(TimeNow(), "│")
+			fmt.Println(TimeNow(), "├──⇢ Uploaded products:", totalProductsUpload)
+			fmt.Println(TimeNow(), "├──⇢ Updated products:", totalProductsUpdated)
+			fmt.Println(TimeNow(), "╰──⇢ Duration:", time.Since(start))
 			fmt.Println()
 
 			err = os.Remove("./upload.lock")

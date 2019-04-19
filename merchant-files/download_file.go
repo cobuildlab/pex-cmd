@@ -18,13 +18,13 @@ var CmdDownloadFile = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		for i, v := range args {
-			fmt.Println("╭─Downloading", v, "...", fmt.Sprintf("%d/%d", i+1, len(args)))
+			fmt.Println(TimeNow(), "╭─Downloading", v, "...", fmt.Sprintf("%d/%d", i+1, len(args)))
 			err := DownloadFile(v)
 			if err != nil {
-				fmt.Println(err)
+				fmt.Println(TimeNow(), err)
 				return
 			}
-			fmt.Println("╰─...", "Discharged", v)
+			fmt.Println(TimeNow(), "╰─...", "Discharged", v)
 			fmt.Println()
 		}
 	},
