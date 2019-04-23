@@ -39,17 +39,23 @@ var CmdUploadAll = &cobra.Command{
 			return
 		}
 
-		for i := 0; i < len(fileList); i++ {
-			v := fileList[i]
+		var countFiles int = len(fileList)
+		var i int
+		for len(fileList) != 0 {
+			if len(fileList) != countFiles {
+				countFiles += countFiles - len(fileList)
+			}
 
-			log.Println("╭─Uploading", v.Name, "...", fmt.Sprintf("%d/%d", i+1, len(fileList)))
+			v := fileList[0]
+
+			log.Println("╭─Uploading", v.Name, "...", fmt.Sprintf("%d/%d", i+1, countFiles))
 
 			start := time.Now()
 
 			totalProductsUpload, totalProductsUpdated, err := UploadFile(v.Name, Verbose)
 			if err != nil {
 				log.Println(err)
-				return
+				continue
 			}
 
 			log.Println("├─⇢ ...", "Uploaded!", v.Name)
@@ -59,6 +65,13 @@ var CmdUploadAll = &cobra.Command{
 			log.Println("╰──⇢ Duration:", time.Since(start))
 			log.Println()
 
+			fileList, err = UploadList()
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+			i++
 		}
 
 		err = os.Remove("./upload.lock")
