@@ -39,7 +39,9 @@ var CmdUploadAll = &cobra.Command{
 			return
 		}
 
-		for i, v := range fileList {
+		for i := 0; i < len(fileList); i++ {
+			v := fileList[i]
+
 			log.Println("╭─Uploading", v.Name, "...", fmt.Sprintf("%d/%d", i+1, len(fileList)))
 
 			start := time.Now()
@@ -49,6 +51,7 @@ var CmdUploadAll = &cobra.Command{
 				log.Println(err)
 				return
 			}
+
 			log.Println("├─⇢ ...", "Uploaded!", v.Name)
 			log.Println("│")
 			log.Println("├──⇢ Uploaded products:", totalProductsUpload)

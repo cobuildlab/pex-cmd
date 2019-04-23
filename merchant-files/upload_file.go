@@ -291,10 +291,8 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 
 	wg.Wait()
 
-	err = os.Remove(pathFile)
-	if err != nil {
-		return
-	}
+	os.Remove("data/rakuten/decompress/" + filename)
+	os.Remove("data/rakuten/" + filename + ".gz")
 
 	return
 }
