@@ -24,7 +24,7 @@ var CmdDownloadAll = &cobra.Command{
 		}
 
 		if exist {
-			fmt.Println(TimeNow(), "The process could not be executed because of the existence of the file download.lock")
+			log.Println("The process could not be executed because of the existence of the file download.lock")
 			os.Exit(0)
 		}
 
@@ -35,11 +35,11 @@ var CmdDownloadAll = &cobra.Command{
 		}
 		emptyFile.Close()
 
-		fmt.Println(TimeNow(), "* Limit file size:", LimitSize)
+		log.Println("* Limit file size:", LimitSize)
 
 		err = DownloadAll(LimitSize)
 		if err != nil {
-			fmt.Println(TimeNow(), err)
+			log.Println(err)
 			return
 		}
 	},
@@ -81,8 +81,8 @@ func DownloadAll(limitSize uint64) (err error) {
 	for i, entry := range entries {
 		if entry.Type == 0 {
 			if entry.Size > limitSize {
-				fmt.Println(TimeNow(), "[x]", entry.Name, "Out of size limit:", entry.Size, fmt.Sprintf("%d/%d", i+1, len(entries)))
-				fmt.Println()
+				log.Println("[x]", entry.Name, "Out of size limit:", entry.Size, fmt.Sprintf("%d/%d", i+1, len(entries)))
+				log.Println()
 			} else {
 				fileDownload := filepath.Join(utils.FTPPathFiles, entry.Name)
 
@@ -90,11 +90,11 @@ func DownloadAll(limitSize uint64) (err error) {
 
 				if fileExt == MerchantFileCompressExt {
 
-					fmt.Println(TimeNow(), "╭─Downloading", entry.Name, "...", fmt.Sprintf("%d/%d", i+1, len(entries)))
-					fmt.Println(TimeNow(), "├─⇢ Size:", entry.Size)
+					log.Println("╭─Downloading", entry.Name, "...", fmt.Sprintf("%d/%d", i+1, len(entries)))
+					log.Println("├─⇢ Size:", entry.Size)
 					if err = utils.DownloadGzipFileFTP(entry.Name, utils.FTPPathFiles); err != nil {
-						fmt.Println(TimeNow(), "[x]", "An error has occurred downloading the file:", entry.Name, fmt.Sprintf("%d/%d", i+1, len(entries)))
-						fmt.Println()
+						log.Println("[x]", "An error has occurred downloading the file:", entry.Name, fmt.Sprintf("%d/%d", i+1, len(entries)))
+						log.Println()
 						countFailedDownloads++
 						continue
 					}
@@ -105,20 +105,20 @@ func DownloadAll(limitSize uint64) (err error) {
 					}
 					countDecompressFiles++
 
-					fmt.Println(TimeNow(), "╰─...", "Discharged", entry.Name)
-					fmt.Println()
+					log.Println("╰─...", "Discharged", entry.Name)
+					log.Println()
 				}
 			}
 
 		}
 	}
 
-	fmt.Println(TimeNow(), "├─⇢ ...", "Discharged!")
-	fmt.Println(TimeNow(), "│")
-	fmt.Println(TimeNow(), "├──⇢ Downloaded files:", countDownloadFiles)
-	fmt.Println(TimeNow(), "├──⇢ Failed downloads:", countFailedDownloads)
-	fmt.Println(TimeNow(), "├──⇢ Unzipped files:", countDownloadFiles)
-	fmt.Println(TimeNow(), "╰──⇢ Duration:", time.Since(start))
+	log.Println("├─⇢ ...", "Discharged!")
+	log.Println("│")
+	log.Println("├──⇢ Downloaded files:", countDownloadFiles)
+	log.Println("├──⇢ Failed downloads:", countFailedDownloads)
+	log.Println("├──⇢ Unzipped files:", countDownloadFiles)
+	log.Println("╰──⇢ Duration:", time.Since(start))
 
 	err = os.Remove("./download.lock")
 	if err != nil {

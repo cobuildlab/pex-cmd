@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"sync"
@@ -29,21 +30,21 @@ var CmdUploadFile = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		for i, v := range args {
-			fmt.Println(TimeNow(), "╭─Uploading", v, "...", fmt.Sprintf("%d/%d", i+1, len(args)))
+			log.Println("╭─Uploading", v, "...", fmt.Sprintf("%d/%d", i+1, len(args)))
 
 			start := time.Now()
 
 			totalProductsUpload, totalProductsUpdated, err := UploadFile(v, Verbose)
 			if err != nil {
-				fmt.Println(TimeNow(), err)
+				log.Println(err)
 				return
 			}
-			fmt.Println(TimeNow(), "├─⇢ ...", "Uploaded!", v)
-			fmt.Println(TimeNow(), "│")
-			fmt.Println(TimeNow(), "├──⇢ Uploaded products:", totalProductsUpload)
-			fmt.Println(TimeNow(), "├──⇢ Updated products:", totalProductsUpdated)
-			fmt.Println(TimeNow(), "╰──⇢ Duration:", time.Since(start))
-			fmt.Println()
+			log.Println("├─⇢ ...", "Uploaded!", v)
+			log.Println("│")
+			log.Println("├──⇢ Uploaded products:", totalProductsUpload)
+			log.Println("├──⇢ Updated products:", totalProductsUpdated)
+			log.Println("╰──⇢ Duration:", time.Since(start))
+			log.Println()
 		}
 	},
 }
@@ -90,7 +91,7 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 		}
 	}
 
-	fmt.Println(TimeNow(), "├─⇢ Product Counter:", countProduct)
+	log.Println("├─⇢ Product Counter:", countProduct)
 
 	fileXML, err = os.Open(pathFile)
 	if err != nil {
@@ -164,24 +165,24 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 						_, err = databases.UpdateElement(dbMerchants, merchantLocal.ID, rev, merchantLocal)
 						if err != nil {
 							if Verbose {
-								fmt.Printf(TimeNow(), "├──⇢+ Error: %s Merchant #%s\n", err.Error(), merchantLocal.ID)
+								log.Printf("├──⇢+ Error: %s Merchant #%s\n", err.Error(), merchantLocal.ID)
 							}
 							break
 						}
 						if Verbose {
-							fmt.Printf(TimeNow(), "├──⇢+ Success: Merchant #%s, Updated\n", merchantLocal.ID)
+							log.Printf("├──⇢+ Success: Merchant #%s, Updated\n", merchantLocal.ID)
 						}
 					}
 				} else {
 					_, _, err = databases.CreateElement(dbMerchants, merchantLocal)
 					if err != nil {
 						if Verbose {
-							fmt.Printf(TimeNow(), "├──⇢+ Error: %s Merchant #%s\n", err.Error(), merchantLocal.ID)
+							log.Printf("├──⇢+ Error: %s Merchant #%s\n", err.Error(), merchantLocal.ID)
 						}
 						break
 					}
 					if Verbose {
-						fmt.Printf(TimeNow(), "├──⇢+ Success: Merchant #%s, Uploaded\n", merchantLocal.ID)
+						log.Printf("├──⇢+ Success: Merchant #%s, Uploaded\n", merchantLocal.ID)
 					}
 				}
 
@@ -235,7 +236,7 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 
 						if err != nil {
 							if Verbose {
-								fmt.Printf(TimeNow(), "├──⇢+ Error: %s Product #%s, Retrying\n", err.Error(), productLocal.ID)
+								log.Printf("├──⇢+ Error: %s Product #%s, Retrying\n", err.Error(), productLocal.ID)
 							}
 							continue
 						}
@@ -245,12 +246,12 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 								_, err = databases.UpdateElement(db, productLocal.ID, productRemoteREV, productLocal)
 								if err != nil {
 									if Verbose {
-										fmt.Printf(TimeNow(), "├──⇢+ Error: %s Product #%s, Retrying\n", err.Error(), productLocal.ID)
+										log.Printf("├──⇢+ Error: %s Product #%s, Retrying\n", err.Error(), productLocal.ID)
 									}
 									continue
 								}
 								if Verbose {
-									fmt.Printf(TimeNow(), "├──⇢+ Success: Product #%s, Updated\n", productLocal.ID)
+									log.Printf("├──⇢+ Success: Product #%s, Updated\n", productLocal.ID)
 								}
 								atomic.AddUint64(&totalProductsUpdated, 1)
 							}
@@ -258,12 +259,12 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 							_, _, err = databases.CreateElement(db, productLocal)
 							if err != nil {
 								if Verbose {
-									fmt.Printf(TimeNow(), "├──⇢+ Error: %s Product #%s, Retrying\n", err.Error(), productLocal.ID)
+									log.Printf("├──⇢+ Error: %s Product #%s, Retrying\n", err.Error(), productLocal.ID)
 								}
 								continue
 							}
 							if Verbose {
-								fmt.Printf(TimeNow(), "├──⇢+ Success: Product #%s, Uploaded\n", productLocal.ID)
+								log.Printf("├──⇢+ Success: Product #%s, Uploaded\n", productLocal.ID)
 							}
 							atomic.AddUint64(&totalProductsUpload, 1)
 						}

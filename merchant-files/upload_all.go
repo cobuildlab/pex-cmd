@@ -22,7 +22,7 @@ var CmdUploadAll = &cobra.Command{
 		}
 
 		if exist {
-			fmt.Println(TimeNow(), "The process could not be executed because of the existence of the file upload.lock")
+			log.Println("The process could not be executed because of the existence of the file upload.lock")
 			os.Exit(0)
 		}
 
@@ -35,31 +35,32 @@ var CmdUploadAll = &cobra.Command{
 
 		fileList, err := UploadList()
 		if err != nil {
-			fmt.Println(TimeNow(), err)
+			log.Println(err)
 			return
 		}
 
 		for i, v := range fileList {
-			fmt.Println(TimeNow(), "╭─Uploading", v.Name, "...", fmt.Sprintf("%d/%d", i+1, len(fileList)))
+			log.Println("╭─Uploading", v.Name, "...", fmt.Sprintf("%d/%d", i+1, len(fileList)))
 
 			start := time.Now()
 
 			totalProductsUpload, totalProductsUpdated, err := UploadFile(v.Name, Verbose)
 			if err != nil {
-				fmt.Println(TimeNow(), err)
+				log.Println(err)
 				return
 			}
-			fmt.Println(TimeNow(), "├─⇢ ...", "Uploaded!", v.Name)
-			fmt.Println(TimeNow(), "│")
-			fmt.Println(TimeNow(), "├──⇢ Uploaded products:", totalProductsUpload)
-			fmt.Println(TimeNow(), "├──⇢ Updated products:", totalProductsUpdated)
-			fmt.Println(TimeNow(), "╰──⇢ Duration:", time.Since(start))
-			fmt.Println()
+			log.Println("├─⇢ ...", "Uploaded!", v.Name)
+			log.Println("│")
+			log.Println("├──⇢ Uploaded products:", totalProductsUpload)
+			log.Println("├──⇢ Updated products:", totalProductsUpdated)
+			log.Println("╰──⇢ Duration:", time.Since(start))
+			log.Println()
 
-			err = os.Remove("./upload.lock")
-			if err != nil {
-				return
-			}
+		}
+
+		err = os.Remove("./upload.lock")
+		if err != nil {
+			return
 		}
 	},
 }

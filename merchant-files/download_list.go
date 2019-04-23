@@ -1,7 +1,7 @@
 package merchants
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/cobuildlab/pex-cmd/errors"
 	"github.com/cobuildlab/pex-cmd/utils"
@@ -16,7 +16,7 @@ var CmdDownloadList = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fileList, err := DownloadList()
 		if err != nil {
-			fmt.Println(TimeNow(), err)
+			log.Println(err)
 			return
 		}
 		var count uint64
@@ -24,14 +24,14 @@ var CmdDownloadList = &cobra.Command{
 		for _, v := range fileList {
 			count++
 			totalSize += v.Size
-			fmt.Println(TimeNow(), "╭─Filename:", v.Name)
-			fmt.Println(TimeNow(), "├─⇢ Size:", v.Size)
-			fmt.Println(TimeNow(), "╰─⇢ Time:", v.ModTime)
-			fmt.Println()
+			log.Println("╭─Filename:", v.Name)
+			log.Println("├─⇢ Size:", v.Size)
+			log.Println("╰─⇢ Time:", v.ModTime)
+			log.Println()
 		}
-		fmt.Println(TimeNow(), "╭─Total files:", count)
-		fmt.Println(TimeNow(), "╰─Total size:", totalSize)
-		fmt.Println(TimeNow(), "*The total size is the sum of the size of all files on the FTP server and should not be used as an exact reference*")
+		log.Println("╭─Total files:", count)
+		log.Println("╰─Total size:", totalSize)
+		log.Println("*The total size is the sum of the size of all files on the FTP server and should not be used as an exact reference*")
 	},
 }
 
