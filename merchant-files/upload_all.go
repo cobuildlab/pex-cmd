@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"time"
 
 	"github.com/cobuildlab/pex-cmd/utils"
@@ -38,6 +39,10 @@ var CmdUploadAll = &cobra.Command{
 			log.Println(err)
 			return
 		}
+
+		sort.Slice(fileList, func(i, j int) bool {
+			return fileList[i].Name > fileList[j].Name
+		})
 
 		var countFiles int = len(fileList)
 		var i int
