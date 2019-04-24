@@ -1,8 +1,8 @@
 package merchants
 
 import (
-	"fmt"
 	"io/ioutil"
+	"log"
 	"path/filepath"
 
 	"github.com/cobuildlab/pex-cmd/utils"
@@ -17,7 +17,7 @@ var CmdUploadList = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fileList, err := UploadList()
 		if err != nil {
-			fmt.Println(TimeNow(), err)
+			log.Println(err)
 			return
 		}
 
@@ -26,13 +26,13 @@ var CmdUploadList = &cobra.Command{
 		for _, v := range fileList {
 			count++
 			totalSize += v.Size
-			fmt.Println(TimeNow(), "╭─Filename:", v.Name)
-			fmt.Println(TimeNow(), "├─⇢ Size:", v.Size)
-			fmt.Println(TimeNow(), "╰─⇢ Time:", v.ModTime)
-			fmt.Println()
+			log.Println("╭─Filename:", v.Name)
+			log.Println("├─⇢ Size:", v.Size)
+			log.Println("╰─⇢ Time:", v.ModTime)
+			log.Println()
 		}
-		fmt.Println(TimeNow(), "╭─Total files:", count)
-		fmt.Println(TimeNow(), "╰─Total size:", totalSize)
+		log.Println("╭─Total files:", count)
+		log.Println("╰─Total size:", totalSize)
 	},
 }
 
