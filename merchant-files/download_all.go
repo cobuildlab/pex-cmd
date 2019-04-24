@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"time"
 
 	"github.com/cobuildlab/pex-cmd/errors"
@@ -76,6 +77,10 @@ func DownloadAll(limitSize uint64) (err error) {
 
 		return
 	}
+
+	sort.Slice(entries, func(i, j int) bool {
+		return entries[i].Name < entries[j].Name
+	})
 
 	start := time.Now()
 	for i, entry := range entries {
