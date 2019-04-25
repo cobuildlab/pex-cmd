@@ -17,6 +17,13 @@ var CmdUploadAll = &cobra.Command{
 	Short: "Upload all the merchants files to the database",
 	Long:  "Upload all the merchants files to the database",
 	Run: func(cmd *cobra.Command, args []string) {
+		f, err := os.OpenFile("uploader.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			log.Println(err)
+			os.Exit(1)
+		}
+		log.SetOutput(f)
+
 		exist, err := utils.CheckExistence("./upload.lock")
 		if err != nil {
 			return

@@ -26,3 +26,4 @@ tags
 vim-session
 
 *.lock
+*.log
