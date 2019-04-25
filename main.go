@@ -6,6 +6,7 @@ import (
 	"os"
 
 	merchants "github.com/cobuildlab/pex-cmd/merchant-files"
+	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 )
 
@@ -17,14 +18,7 @@ var rootCmd = &cobra.Command{
 }
 
 func main() {
-	f, err := os.OpenFile("pex.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-
-	log.SetOutput(f)
-
+	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
