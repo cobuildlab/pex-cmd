@@ -18,6 +18,10 @@ var rootCmd = &cobra.Command{
 }
 
 func main() {
+	log.SetPrefix(
+		fmt.Sprintf("[%d] - ", os.Getpid()),
+	)
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
