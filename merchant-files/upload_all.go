@@ -51,12 +51,8 @@ var CmdUploadAll = &cobra.Command{
 			return fileList[i].Name > fileList[j].Name
 		})
 
-		var countFiles int = len(fileList)
-		var i int
-		for len(fileList) != 0 {
-			if len(fileList) != countFiles {
-				countFiles += countFiles - len(fileList)
-			}
+		for i := 0; len(fileList) != 0; i++ {
+			var countFiles int = len(fileList)
 
 			v := fileList[0]
 
@@ -82,8 +78,6 @@ var CmdUploadAll = &cobra.Command{
 				log.Println(err)
 				return
 			}
-
-			i++
 		}
 
 		err = os.Remove("./upload.lock")
