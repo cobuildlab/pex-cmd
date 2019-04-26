@@ -19,7 +19,7 @@ var CmdDownloadAll = &cobra.Command{
 	Short: "Download all the merchants files of the FTP server",
 	Long:  "Download all the merchants files of the FTP server",
 	Run: func(cmd *cobra.Command, args []string) {
-		f, err := os.OpenFile("downloader.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		f, err := os.OpenFile("download.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
 			log.Println(err)
 			os.Exit(1)
