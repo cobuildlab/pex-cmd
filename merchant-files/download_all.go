@@ -117,7 +117,8 @@ func DownloadAll(limitSize uint64) (err error) {
 					countDownloadFiles++
 
 					if err = utils.DecompressFileGzip(fileDownload, DecompressPath); err != nil {
-						return
+						log.Println("[x]", "An error has occurred decompressing the file:", entry.Name, fmt.Sprintf("%d/%d", i+1, len(entries)))
+						continue
 					}
 					countDecompressFiles++
 
