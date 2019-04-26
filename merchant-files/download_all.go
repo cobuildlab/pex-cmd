@@ -2,10 +2,12 @@ package merchants
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"time"
 
 	"github.com/cobuildlab/pex-cmd/errors"
@@ -32,16 +34,18 @@ var CmdDownloadAll = &cobra.Command{
 		}
 
 		if exist {
-			log.Println("The process could not be executed because of the existence of the file download.lock")
+			pid, _ := ioutil.ReadFile("./download.lock")
+			log.Println("The process could not be executed because of the existence of the file download.lock, PID From the creator : [" + string(pid) + "]")
 			os.Exit(0)
 		}
 
-		emptyFile, err := os.Create("./download.lock")
+		lockFile, err := os.Create("./download.lock")
 		if err != nil {
 			log.Fatal(err)
 			os.Exit(0)
 		}
-		emptyFile.Close()
+		lockFile.WriteString(strconv.Itoa(os.Getpid()))
+		lockFile.Close()
 
 		log.Println("* Limit file size:", LimitSize)
 

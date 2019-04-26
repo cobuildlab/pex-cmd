@@ -2,9 +2,11 @@ package merchants
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"sort"
+	"strconv"
 	"time"
 
 	"github.com/cobuildlab/pex-cmd/utils"
@@ -30,16 +32,18 @@ var CmdUploadAll = &cobra.Command{
 		}
 
 		if exist {
-			log.Println("The process could not be executed because of the existence of the file upload.lock")
+			pid, _ := ioutil.ReadFile("./upload.lock")
+			log.Println("The process could not be executed because of the existence of the file upload.lock, PID From the creator : [" + string(pid) + "]")
 			os.Exit(0)
 		}
 
-		emptyFile, err := os.Create("./upload.lock")
+		lockFile, err := os.Create("./upload.lock")
 		if err != nil {
 			log.Fatal(err)
 			os.Exit(0)
 		}
-		emptyFile.Close()
+		lockFile.WriteString(strconv.Itoa(os.Getpid()))
+		lockFile.Close()
 
 		fileList, err := UploadList()
 		if err != nil {
