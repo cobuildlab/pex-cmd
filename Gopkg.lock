@@ -61,20 +61,12 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:d776f3e95774a8719f2e57fabbbb33103035fe072dcf6f1864f33abd17b753e5"
+  digest = "1:3b364b122a1dc81dba8c1bff3d4524b12ce8da3fa55a5f00e133d864e019a548"
   name = "github.com/parnurzeal/gorequest"
   packages = ["."]
   pruneopts = "UT"
-  revision = "a578a48e8d6ca8b01a3b18314c43c6716bb5f5a3"
-  version = "v0.2.15"
-
-[[projects]]
-  digest = "1:cf31692c14422fa27c83a05292eb5cbe0fb2775972e8f1f8446a71549bd8980b"
-  name = "github.com/pkg/errors"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "ba968bfe8b2f7e042a574c888954fccecfa385b4"
-  version = "v0.8.1"
+  revision = "2aea80ce763523ecc6452e61c3727ae9595a5809"
+  version = "v0.2.14"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
