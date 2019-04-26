@@ -2,10 +2,12 @@ package merchants
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"time"
 
 	"github.com/cobuildlab/pex-cmd/errors"
@@ -19,7 +21,7 @@ var CmdDownloadAll = &cobra.Command{
 	Short: "Download all the merchants files of the FTP server",
 	Long:  "Download all the merchants files of the FTP server",
 	Run: func(cmd *cobra.Command, args []string) {
-		f, err := os.OpenFile("downloader.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		f, err := os.OpenFile("download.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
 			log.Println(err)
 			os.Exit(1)
@@ -32,16 +34,18 @@ var CmdDownloadAll = &cobra.Command{
 		}
 
 		if exist {
-			log.Println("The process could not be executed because of the existence of the file download.lock")
+			pid, _ := ioutil.ReadFile("./download.lock")
+			log.Println("The process could not be executed because of the existence of the file download.lock, PID From the creator : [" + string(pid) + "]")
 			os.Exit(0)
 		}
 
-		emptyFile, err := os.Create("./download.lock")
+		lockFile, err := os.Create("./download.lock")
 		if err != nil {
 			log.Fatal(err)
 			os.Exit(0)
 		}
-		emptyFile.Close()
+		lockFile.WriteString(strconv.Itoa(os.Getpid()))
+		lockFile.Close()
 
 		log.Println("* Limit file size:", LimitSize)
 
@@ -113,7 +117,8 @@ func DownloadAll(limitSize uint64) (err error) {
 					countDownloadFiles++
 
 					if err = utils.DecompressFileGzip(fileDownload, DecompressPath); err != nil {
-						return
+						log.Println("[x]", "An error has occurred decompressing the file:", entry.Name, fmt.Sprintf("%d/%d", i+1, len(entries)))
+						continue
 					}
 					countDecompressFiles++
 

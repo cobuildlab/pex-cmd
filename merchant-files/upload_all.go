@@ -2,9 +2,11 @@ package merchants
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"sort"
+	"strconv"
 	"time"
 
 	"github.com/cobuildlab/pex-cmd/utils"
@@ -17,7 +19,7 @@ var CmdUploadAll = &cobra.Command{
 	Short: "Upload all the merchants files to the database",
 	Long:  "Upload all the merchants files to the database",
 	Run: func(cmd *cobra.Command, args []string) {
-		f, err := os.OpenFile("uploader.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		f, err := os.OpenFile("upload.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
 			log.Println(err)
 			os.Exit(1)
@@ -30,16 +32,18 @@ var CmdUploadAll = &cobra.Command{
 		}
 
 		if exist {
-			log.Println("The process could not be executed because of the existence of the file upload.lock")
+			pid, _ := ioutil.ReadFile("./upload.lock")
+			log.Println("The process could not be executed because of the existence of the file upload.lock, PID From the creator : [" + string(pid) + "]")
 			os.Exit(0)
 		}
 
-		emptyFile, err := os.Create("./upload.lock")
+		lockFile, err := os.Create("./upload.lock")
 		if err != nil {
 			log.Fatal(err)
 			os.Exit(0)
 		}
-		emptyFile.Close()
+		lockFile.WriteString(strconv.Itoa(os.Getpid()))
+		lockFile.Close()
 
 		fileList, err := UploadList()
 		if err != nil {
@@ -51,12 +55,8 @@ var CmdUploadAll = &cobra.Command{
 			return fileList[i].Name > fileList[j].Name
 		})
 
-		var countFiles int = len(fileList)
-		var i int
-		for len(fileList) != 0 {
-			if len(fileList) != countFiles {
-				countFiles += countFiles - len(fileList)
-			}
+		for i := 0; len(fileList) != 0; i++ {
+			var countFiles int = len(fileList)
 
 			v := fileList[0]
 
@@ -82,8 +82,6 @@ var CmdUploadAll = &cobra.Command{
 				log.Println(err)
 				return
 			}
-
-			i++
 		}
 
 		err = os.Remove("./upload.lock")
