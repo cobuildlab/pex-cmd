@@ -192,10 +192,17 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 				queueUpload <- true
 
 				if err = dec.DecodeElement(&product, &start); err != nil {
+					<-queueUpload
 					break
 				}
 
-				if product.Price.Currency != "USD" || product.Discount.Currency != "USD" {
+				if product.Price.Currency != "" && product.Price.Currency != "USD" {
+					<-queueUpload
+					break
+				}
+
+				if product.Discount.Currency != "" && product.Discount.Currency != "USD" {
+					<-queueUpload
 					break
 				}
 
