@@ -8,32 +8,18 @@ import (
 	"time"
 
 	cloudant "github.com/IBM-Cloud/go-cloudant"
+	queue "github.com/arthurnavah/go-queue"
 	"github.com/cobuildlab/pex-cmd/errors"
 	"github.com/cobuildlab/pex-cmd/models"
 	couchdb "github.com/timjacobi/go-couchdb"
 )
 
-var queueRead = make(chan bool, DBMaxReading)
-var queueReadDone = make(chan bool, DBMaxReading)
-
-func init() {
-	go func() {
-		c := time.Tick(time.Second * 1)
-		for range c {
-			for i := 0; i < len(queueReadDone); i++ {
-				<-queueRead
-				<-queueReadDone
-			}
-		}
-	}()
-}
+var queueRead = queue.NewClock(time.Second*1, uint(DBMaxReading))
 
 //ReadAllElements Read all the elements of a database
 func ReadAllElements(db DB, result interface{}, opts models.OptionsDB) (err error) {
-	queueRead <- true
-	defer func() {
-		queueReadDone <- true
-	}()
+	queueRead.Add(1)
+	defer queueRead.Done(1)
 
 	err = db.GetAllDocument(result, cloudant.Options(opts))
 	if err != nil {
@@ -45,10 +31,8 @@ func ReadAllElements(db DB, result interface{}, opts models.OptionsDB) (err erro
 
 //ReadElement Read element of a database
 func ReadElement(db DB, id string, doc interface{}, opts models.OptionsDB) (err error) {
-	queueRead <- true
-	defer func() {
-		queueReadDone <- true
-	}()
+	queueRead.Add(1)
+	defer queueRead.Done(1)
 
 	err = db.GetDocument(id, doc, cloudant.Options(opts))
 	if err != nil {
@@ -68,10 +52,8 @@ func ReadElement(db DB, id string, doc interface{}, opts models.OptionsDB) (err 
 
 //SearchElement Search element of a database
 func SearchElement(db DB, query models.QueryDB) (result []interface{}, err error) {
-	queueRead <- true
-	defer func() {
-		queueReadDone <- true
-	}()
+	queueRead.Add(1)
+	defer queueRead.Done(1)
 
 	result, err = db.SearchDocument(cloudant.Query(query))
 	if err != nil {
@@ -83,10 +65,8 @@ func SearchElement(db DB, query models.QueryDB) (result []interface{}, err error
 
 //SearchDesignDocument Perform a search using a Design Document, Return a SearchResp with the response of the database
 func SearchDesignDocument(db, name, index, query string, page, limit, maxLimit int) (result cloudant.SearchResp, err error) {
-	queueRead <- true
-	defer func() {
-		queueReadDone <- true
-	}()
+	queueRead.Add(1)
+	defer queueRead.Done(1)
 
 	if page == 0 {
 		page = 1
