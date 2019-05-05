@@ -64,7 +64,7 @@ var CmdUploadAll = &cobra.Command{
 
 			start := time.Now()
 
-			totalProductsUpload, totalProductsUpdated, err := UploadFile(v.Name, Verbose)
+			totalProductsUpload, totalProductsUpdated, totalProductsFailed, err := UploadFile(v.Name, Verbose)
 			if err != nil {
 				log.Println(err)
 				continue
@@ -74,6 +74,7 @@ var CmdUploadAll = &cobra.Command{
 			log.Println("│")
 			log.Println("├──⇢ Uploaded products:", totalProductsUpload)
 			log.Println("├──⇢ Updated products:", totalProductsUpdated)
+			log.Println("├──⇢ Failed products:", totalProductsFailed)
 			log.Println("╰──⇢ Duration:", time.Since(start))
 			log.Println()
 
