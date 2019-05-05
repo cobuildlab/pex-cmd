@@ -34,7 +34,7 @@ var CmdUploadFile = &cobra.Command{
 
 			start := time.Now()
 
-			totalProductsUpload, totalProductsUpdated, err := UploadFile(v, Verbose)
+			totalProductsUpload, totalProductsUpdated, totalProductsFailed, err := UploadFile(v, Verbose)
 			if err != nil {
 				log.Println(err)
 				return
@@ -43,6 +43,7 @@ var CmdUploadFile = &cobra.Command{
 			log.Println("│")
 			log.Println("├──⇢ Uploaded products:", totalProductsUpload)
 			log.Println("├──⇢ Updated products:", totalProductsUpdated)
+			log.Println("├──⇢ Failed products:", totalProductsFailed)
 			log.Println("╰──⇢ Duration:", time.Since(start))
 			log.Println()
 		}
@@ -50,7 +51,7 @@ var CmdUploadFile = &cobra.Command{
 }
 
 //UploadFile Upload a merchant file to the database
-func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProductsUpdated uint64, err error) {
+func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProductsUpdated, totalProductsFailed uint64, err error) {
 	pathFile := filepath.Join(DecompressPath, filename)
 
 	clientDB, err := databases.NewClient(
@@ -165,7 +166,7 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 				}
 
 				wg.Add(1)
-				go uploadProduct(product, dbProducts, merchantLocal, &totalProductsUpload, &totalProductsUpdated, productsRemoteID, &wg)
+				go uploadProduct(product, dbProducts, merchantLocal, &totalProductsUpload, &totalProductsUpdated, &totalProductsFailed, productsRemoteID, &wg)
 			}
 		}
 	}
@@ -226,7 +227,7 @@ func uploadMerchant(merchant utils.Merchant, dbMerchants databases.DB) (err erro
 	return
 }
 
-func uploadProduct(product models.Product, dbProducts databases.DB, merchantLocal models.Merchant, totalProductsUpload, totalProductsUpdated *uint64, productsRemoteID []string, wg *sync.WaitGroup) (err error) {
+func uploadProduct(product models.Product, dbProducts databases.DB, merchantLocal models.Merchant, totalProductsUpload, totalProductsUpdated, totalProductsFailed *uint64, productsRemoteID []string, wg *sync.WaitGroup) (err error) {
 	defer wg.Done()
 
 	var countFailed uint
@@ -245,9 +246,9 @@ ForProduct:
 				err = databases.ReadElement(dbProducts, product.ID, &result, models.OptionsDB{})
 				if err != nil {
 					if countFailed >= 5 {
-						countFailed++
 						continue ForProduct
 					}
+					atomic.AddUint64(totalProductsFailed, 1)
 					return
 
 				}
@@ -256,7 +257,10 @@ ForProduct:
 
 					productRemoteREV = result.(map[string]interface{})["_rev"].(string)
 					if err = mapstructure.Decode(result, &productRemote); err != nil {
-						continue
+						if countFailed >= 5 {
+							continue ForProduct
+						}
+						return
 					}
 					productRemote.ID = result.(map[string]interface{})["_id"].(string)
 
@@ -273,6 +277,7 @@ ForProduct:
 				countFailed++
 				continue ForProduct
 			}
+			atomic.AddUint64(totalProductsFailed, 1)
 			return
 		}
 
@@ -287,6 +292,7 @@ ForProduct:
 						countFailed++
 						continue ForProduct
 					}
+					atomic.AddUint64(totalProductsFailed, 1)
 					return
 				}
 				if Verbose {
@@ -304,6 +310,7 @@ ForProduct:
 					countFailed++
 					continue ForProduct
 				}
+				atomic.AddUint64(totalProductsFailed, 1)
 				return
 			}
 			if Verbose {
