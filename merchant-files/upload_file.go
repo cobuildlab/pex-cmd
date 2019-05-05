@@ -229,6 +229,9 @@ func uploadMerchant(merchant utils.Merchant, dbMerchants databases.DB) (err erro
 func uploadProduct(product models.Product, dbProducts databases.DB, merchantLocal models.Merchant, totalProductsUpload, totalProductsUpdated *uint64, productsRemoteID []string, wg *sync.WaitGroup) (err error) {
 	defer wg.Done()
 
+	var countFailed uint
+
+ForProduct:
 	for {
 		product.Merchant = merchantLocal
 
@@ -241,6 +244,10 @@ func uploadProduct(product models.Product, dbProducts databases.DB, merchantLoca
 				var result interface{}
 				err = databases.ReadElement(dbProducts, product.ID, &result, models.OptionsDB{})
 				if err != nil {
+					if countFailed >= 5 {
+						countFailed++
+						continue ForProduct
+					}
 					return
 
 				}
@@ -249,7 +256,7 @@ func uploadProduct(product models.Product, dbProducts databases.DB, merchantLoca
 
 					productRemoteREV = result.(map[string]interface{})["_rev"].(string)
 					if err = mapstructure.Decode(result, &productRemote); err != nil {
-						return
+						continue
 					}
 					productRemote.ID = result.(map[string]interface{})["_id"].(string)
 
@@ -262,7 +269,11 @@ func uploadProduct(product models.Product, dbProducts databases.DB, merchantLoca
 			if Verbose {
 				log.Printf("├──⇢+ Error: %s Product #%s, Retrying\n", err.Error(), product.ID)
 			}
-			continue
+			if countFailed >= 5 {
+				countFailed++
+				continue ForProduct
+			}
+			return
 		}
 
 		if exists {
@@ -272,7 +283,11 @@ func uploadProduct(product models.Product, dbProducts databases.DB, merchantLoca
 					if Verbose {
 						log.Printf("├──⇢+ Error: %s Product #%s, Retrying\n", err.Error(), product.ID)
 					}
-					continue
+					if countFailed >= 5 {
+						countFailed++
+						continue ForProduct
+					}
+					return
 				}
 				if Verbose {
 					log.Printf("├──⇢+ Success: Product #%s, Updated\n", product.ID)
@@ -285,7 +300,11 @@ func uploadProduct(product models.Product, dbProducts databases.DB, merchantLoca
 				if Verbose {
 					log.Printf("├──⇢+ Error: %s Product #%s, Retrying\n", err.Error(), product.ID)
 				}
-				continue
+				if countFailed >= 5 {
+					countFailed++
+					continue ForProduct
+				}
+				return
 			}
 			if Verbose {
 				log.Printf("├──⇢+ Success: Product #%s, Uploaded\n", product.ID)
