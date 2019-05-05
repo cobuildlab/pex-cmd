@@ -19,9 +19,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var queueUpload = make(chan bool, 100000)
-var ch chan int
-
 //CmdUploadFile Command to upload a merchant file to the database
 var CmdUploadFile = &cobra.Command{
 	Use:   "file [string]",
