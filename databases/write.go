@@ -7,12 +7,13 @@ import (
 	"github.com/cobuildlab/pex-cmd/errors"
 )
 
-var queueWriter = queue.NewClock(time.Second*1, uint(DBMaxWriting))
+//QueueWriter ...
+var QueueWriter = queue.NewClock(time.Second*1, uint(DBMaxWriting))
 
 //CreateElement Create an item in the database
 func CreateElement(db DB, element interface{}) (id string, rev string, err error) {
-	queueWriter.Add(1)
-	defer queueWriter.Done(1)
+	QueueWriter.Add(1)
+	defer QueueWriter.Done(1)
 
 	id, rev, err = db.CreateDocument(element)
 	if err != nil {
@@ -24,8 +25,8 @@ func CreateElement(db DB, element interface{}) (id string, rev string, err error
 
 //UpdateElement Update an item in the database
 func UpdateElement(db DB, id string, rev string, element interface{}) (newRev string, err error) {
-	queueWriter.Add(1)
-	defer queueWriter.Done(1)
+	QueueWriter.Add(1)
+	defer QueueWriter.Done(1)
 
 	newRev, err = db.UpdateDocument(id, rev, element)
 	if err != nil {

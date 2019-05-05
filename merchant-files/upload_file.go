@@ -150,6 +150,8 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 			case "product":
 				//Save products
 
+				databases.QueueWriter.Wait()
+
 				if err = dec.DecodeElement(&product, &start); err != nil {
 					break
 				}
