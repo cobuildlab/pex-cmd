@@ -3,8 +3,8 @@ package databases
 import (
 	"time"
 
-	queue "github.com/arthurnavah/go-queue"
 	"github.com/cobuildlab/pex-cmd/errors"
+	"github.com/cobuildlab/pex-cmd/queue"
 )
 
 //QueueWriter ...

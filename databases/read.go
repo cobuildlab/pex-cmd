@@ -8,9 +8,9 @@ import (
 	"time"
 
 	cloudant "github.com/IBM-Cloud/go-cloudant"
-	queue "github.com/arthurnavah/go-queue"
 	"github.com/cobuildlab/pex-cmd/errors"
 	"github.com/cobuildlab/pex-cmd/models"
+	"github.com/cobuildlab/pex-cmd/queue"
 	couchdb "github.com/timjacobi/go-couchdb"
 )
 
