@@ -55,16 +55,23 @@ var CmdUploadAll = &cobra.Command{
 			return fileList[i].Name > fileList[j].Name
 		})
 
+		var preFile utils.FileInfo
 		for i := 0; len(fileList) != 0; i++ {
 			var countFiles int = len(fileList)
 
 			v := fileList[0]
 
+			if v == preFile {
+				i--
+			} else {
+				preFile = v
+			}
+
 			log.Println("╭─Uploading", v.Name, "...", fmt.Sprintf("%d/%d", i+1, countFiles))
 
 			start := time.Now()
 
-			totalProductsUpload, totalProductsUpdated, err := UploadFile(v.Name, Verbose)
+			totalProductsUpload, totalProductsUpdated, totalProductsFailed, err := UploadFile(v.Name, Verbose)
 			if err != nil {
 				log.Println(err)
 				continue
@@ -74,6 +81,7 @@ var CmdUploadAll = &cobra.Command{
 			log.Println("│")
 			log.Println("├──⇢ Uploaded products:", totalProductsUpload)
 			log.Println("├──⇢ Updated products:", totalProductsUpdated)
+			log.Println("├──⇢ Failed products:", totalProductsFailed)
 			log.Println("╰──⇢ Duration:", time.Since(start))
 			log.Println()
 
