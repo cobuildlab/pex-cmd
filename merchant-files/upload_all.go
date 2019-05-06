@@ -55,10 +55,17 @@ var CmdUploadAll = &cobra.Command{
 			return fileList[i].Name > fileList[j].Name
 		})
 
+		var preFile utils.FileInfo
 		for i := 0; len(fileList) != 0; i++ {
 			var countFiles int = len(fileList)
 
 			v := fileList[0]
+
+			if v == preFile {
+				i--
+			} else {
+				preFile = v
+			}
 
 			log.Println("╭─Uploading", v.Name, "...", fmt.Sprintf("%d/%d", i+1, countFiles))
 
