@@ -49,81 +49,50 @@ var CmdUploadFile = &cobra.Command{
 
 //UploadFile Upload a merchant file to the database
 func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProductsUpdated, totalProductsFailed uint64, err error) {
+	var merchant utils.Merchant
+	var product models.Product
+	var wg sync.WaitGroup
+
 	pathFile := filepath.Join(DecompressPath, filename)
 
-	clientDB, err := databases.NewClient(
-		databases.Username,
-		databases.Password,
-	)
-
+	clientDB, err := databases.NewClient(databases.Username, databases.Password)
 	if err != nil {
 		return
 	}
-
-	var merchant utils.Merchant
-	var merchantLocal models.Merchant
-	var product models.Product
-	var wg sync.WaitGroup
-	var countProduct uint64
 
 	fileXML, err := os.Open(pathFile)
 	if err != nil {
 		return
 	}
-	dec := xml.NewDecoder(fileXML)
 
-	for {
-		token, err := dec.Token()
-		if err == io.EOF {
-			err = nil
-			break
-		}
+	log.Println("├─⇢ Product Counter:", CountProductsInMerchantFile(fileXML))
+	fileXML.Close()
 
-		switch token.(type) {
-		case xml.StartElement:
-			start := token.(xml.StartElement)
-			if start.Name.Local == "product" {
-				dec.DecodeElement(&product, &start)
-				countProduct++
-			}
-		}
+	dbMerchants := databases.OpenDB(clientDB, databases.DBNameMerchants)
+	dbProducts := databases.OpenDB(clientDB, databases.DBNameProducts)
+
+	productsRemoteID, err := products.GetIDs()
+	if err != nil {
+		return
 	}
-
-	log.Println("├─⇢ Product Counter:", countProduct)
 
 	fileXML, err = os.Open(pathFile)
 	if err != nil {
 		return
 	}
-	dec = xml.NewDecoder(fileXML)
-
-	chDBP := make(chan databases.DB)
-	chDBM := make(chan databases.DB)
-	chIDs := make(chan []string)
-	chErr := make(chan error)
-
-	go func() {
-		chDBM <- databases.OpenDB(clientDB, databases.DBNameMerchants)
-	}()
-
-	go func() {
-		chDBP <- databases.OpenDB(clientDB, databases.DBNameProducts)
-	}()
-
-	go func() {
-		productsRemoteID, err := products.GetIDs()
-		chIDs <- productsRemoteID
-		chErr <- err
-	}()
-
-	dbMerchants := <-chDBM
-	dbProducts := <-chDBP
-	productsRemoteID := <-chIDs
-
-	err = <-chErr
+	merchant, err = UploadMerchantInMerchantFile(fileXML, dbMerchants)
 	if err != nil {
 		return
 	}
+	fileXML.Close()
+
+	fileXML, err = os.Open(pathFile)
+	if err != nil {
+		return
+	}
+	defer fileXML.Close()
+
+	dec := xml.NewDecoder(fileXML)
 
 	for {
 		token, err := dec.Token()
@@ -137,16 +106,6 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 			start := token.(xml.StartElement)
 
 			switch start.Name.Local {
-			case "header":
-				if err = dec.DecodeElement(&merchant, &start); err != nil {
-					break
-				}
-
-				err = uploadMerchant(merchant, dbMerchants)
-				if err != nil {
-					break
-				}
-
 			case "product":
 				//Save products
 
@@ -165,7 +124,7 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 				}
 
 				wg.Add(1)
-				go uploadProduct(product, dbProducts, merchantLocal, &totalProductsUpload, &totalProductsUpdated, &totalProductsFailed, productsRemoteID, &wg)
+				go uploadProduct(product, merchant, dbProducts, &totalProductsUpload, &totalProductsUpdated, &totalProductsFailed, productsRemoteID, &wg)
 			}
 		}
 	}
@@ -178,66 +137,22 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 	return
 }
 
-func uploadMerchant(merchant utils.Merchant, dbMerchants databases.DB) (err error) {
-	var merchantLocal models.Merchant
-
-	merchantLocal = models.Merchant{
-		ID:   merchant.MerchantID,
-		Name: merchant.MerchantName,
-	}
-
-	var result interface{}
-	databases.ReadElement(dbMerchants, merchantLocal.ID, &result, models.OptionsDB{})
-
-	if result != nil {
-		var merchantRemote models.Merchant
-		if err = mapstructure.Decode(result, &merchantRemote); err != nil {
-			return
-		}
-		merchantRemote.ID = result.(map[string]interface{})["_id"].(string)
-
-		if merchantRemote != merchantLocal {
-			rev := result.(map[string]interface{})["_rev"].(string)
-
-			_, err = databases.UpdateElement(dbMerchants, merchantLocal.ID, rev, merchantLocal)
-			if err != nil {
-				if Verbose {
-					log.Printf("├──⇢+ Error: %s Merchant #%s\n", err.Error(), merchantLocal.ID)
-				}
-				return
-			}
-			if Verbose {
-				log.Printf("├──⇢+ Success: Merchant #%s, Updated\n", merchantLocal.ID)
-			}
-		}
-	} else {
-		_, _, err = databases.CreateElement(dbMerchants, merchantLocal)
-		if err != nil {
-			if Verbose {
-				log.Printf("├──⇢+ Error: %s Merchant #%s\n", err.Error(), merchantLocal.ID)
-			}
-			return
-		}
-		if Verbose {
-			log.Printf("├──⇢+ Success: Merchant #%s, Uploaded\n", merchantLocal.ID)
-		}
-	}
-
-	return
-}
-
-func uploadProduct(product models.Product, dbProducts databases.DB, merchantLocal models.Merchant, totalProductsUpload, totalProductsUpdated, totalProductsFailed *uint64, productsRemoteID []string, wg *sync.WaitGroup) (err error) {
+func uploadProduct(product models.Product, merchantLocal utils.Merchant, dbProducts databases.DB, totalProductsUpload, totalProductsUpdated, totalProductsFailed *uint64, productsRemoteID []string, wg *sync.WaitGroup) (err error) {
 	defer wg.Done()
 
 	var countFailed uint
+	var exists bool
+	var productRemote models.Product
+	var productRemoteREV string
+
+	product.Merchant = models.Merchant{
+		ID:   merchantLocal.MerchantID,
+		Name: merchantLocal.MerchantName,
+	}
 
 ForProduct:
 	for {
-		product.Merchant = merchantLocal
 
-		var exists bool
-		var productRemote models.Product
-		var productRemoteREV string
 		for _, v := range productsRemoteID {
 			if v == product.ID {
 
