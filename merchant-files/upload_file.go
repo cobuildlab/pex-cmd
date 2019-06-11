@@ -65,7 +65,12 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 		return
 	}
 
-	log.Println("├─⇢ Product Counter:", CountProductsInMerchantFile(fileXML))
+	countProduct, err := CountProductsInMerchantFile(fileXML)
+	if err != nil {
+		return
+	}
+
+	log.Println("├─⇢ Product Counter:", countProduct)
 	fileXML.Close()
 
 	dbMerchants := databases.OpenDB(clientDB, databases.DBNameMerchants)

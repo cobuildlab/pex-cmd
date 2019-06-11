@@ -89,4 +89,7 @@ var (
 
 	//ErrorRequestWithoutAuthorization ...
 	ErrorRequestWithoutAuthorization = errors.New("You do not have permissions to make requests to this resource")
+
+	//ErrorNumberOfProductsNotExist ...
+	ErrorNumberOfProductsNotExist = errors.New("The 'numberOfProducts' token does not exist, the merchant file may be incomplete")
 )

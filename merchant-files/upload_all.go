@@ -74,6 +74,12 @@ var CmdUploadAll = &cobra.Command{
 			totalProductsUpload, totalProductsUpdated, totalProductsFailed, err := UploadFile(v.Name, Verbose)
 			if err != nil {
 				log.Println(err)
+
+				fileList, err = UploadList()
+				if err != nil {
+					log.Println(err)
+					return
+				}
 				continue
 			}
 

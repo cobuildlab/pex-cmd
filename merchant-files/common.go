@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/cobuildlab/pex-cmd/databases"
+	"github.com/cobuildlab/pex-cmd/errors"
 	"github.com/cobuildlab/pex-cmd/models"
 	"github.com/cobuildlab/pex-cmd/utils"
 	"github.com/mitchellh/mapstructure"
@@ -37,13 +38,17 @@ var (
 )
 
 //CountProductsInMerchantFile Count the products within a merchant file
-func CountProductsInMerchantFile(mf *os.File) (count uint64) {
-	var product models.Product
+func CountProductsInMerchantFile(mf *os.File) (count int, err error) {
+	var existNumberOfProducts bool
+
 	dec := xml.NewDecoder(mf)
 
+ForCountProduct:
 	for {
 		token, err := dec.Token()
-		if err == io.EOF {
+		if err != nil {
+			break
+		} else if err == io.EOF {
 			err = nil
 			break
 		}
@@ -51,11 +56,24 @@ func CountProductsInMerchantFile(mf *os.File) (count uint64) {
 		switch token.(type) {
 		case xml.StartElement:
 			start := token.(xml.StartElement)
-			if start.Name.Local == "product" {
-				dec.DecodeElement(&product, &start)
-				count++
+			if start.Name.Local == "numberOfProducts" {
+				dec.DecodeElement(&count, &start)
+
+				existNumberOfProducts = true
+				break ForCountProduct
 			}
 		}
+	}
+
+	if !existNumberOfProducts {
+		err = errors.ErrorNumberOfProductsNotExist
+		_, fileName := filepath.Split(mf.Name())
+		exist, _ := utils.CheckExistence("data/rakuten/decompress/damaged")
+		if !exist {
+			os.Mkdir("data/rakuten/decompress/damaged", 0777)
+		}
+		os.Remove("data/rakuten/" + fileName + ".gz")
+		os.Rename("data/rakuten/decompress/"+fileName, "data/rakuten/decompress/damaged/"+fileName)
 	}
 
 	return
