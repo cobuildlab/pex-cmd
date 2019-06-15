@@ -21,6 +21,7 @@ func init() {
 	CmdUploadAll.Flags().BoolVarP(&Verbose, "verbose", "v", false, "Verbose output")
 
 	CmdUpload.AddCommand(CmdUploadList)
+	CmdUpload.AddCommand(CmdUploadCount)
 	CmdUpload.AddCommand(CmdUploadFile)
 	CmdUpload.AddCommand(CmdUploadAll)
 
