@@ -56,6 +56,9 @@ var CmdUploadAll = &cobra.Command{
 		})
 
 		var preFile utils.FileInfo
+
+		startT := time.Now()
+		var totalProductsUploadT, totalProductsUpdatedT, totalProductsFailedT uint64
 		for i := 0; len(fileList) != 0; i++ {
 			var countFiles int = len(fileList)
 
@@ -96,7 +99,18 @@ var CmdUploadAll = &cobra.Command{
 				log.Println(err)
 				return
 			}
+
+			totalProductsUploadT += totalProductsUpload
+			totalProductsUpdatedT += totalProductsUpdated
+			totalProductsFailedT += totalProductsFailed
 		}
+
+		fmt.Println()
+		log.Println("╭──⇢ Total Uploaded products:", totalProductsUploadT)
+		log.Println("├──⇢ Total Updated products:", totalProductsUpdatedT)
+		log.Println("├──⇢ Total Failed products:", totalProductsFailedT)
+		log.Println("╰──⇢ Duration:", time.Since(startT))
+		fmt.Println()
 
 		err = os.Remove("./upload.lock")
 		if err != nil {
