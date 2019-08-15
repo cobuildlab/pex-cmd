@@ -108,6 +108,7 @@ ForDecodeMerchant:
 		ID:   merchant.MerchantID,
 		Name: merchant.MerchantName,
 	}
+	log.Println("├─⇢ Merchant ID:", merchantLocal.ID)
 
 	var result interface{}
 	databases.ReadElement(dbMerchants, merchantLocal.ID, &result, models.OptionsDB{})

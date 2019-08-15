@@ -81,10 +81,13 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 		return
 	}
 
+	log.Println("├─⇢ Opening:", pathFile)
 	fileXML, err = os.Open(pathFile)
 	if err != nil {
+		log.Println("├─⇢ Error Opening File:")
 		return
 	}
+
 	merchant, err = UploadMerchantInMerchantFile(fileXML, dbMerchants)
 	if err != nil {
 		return
