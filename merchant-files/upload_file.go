@@ -82,7 +82,7 @@ func UploadFile(filename string, verbose bool) (totalProductsUpload, totalProduc
 	}
 
 	log.Println("├─⇢ Opening:", pathFile)
-	fileXML, err = os.Open(pathFile)
+	fileXML, err := os.Open(pathFile)
 	if err != nil {
 		log.Println("├─⇢ Error Opening File:")
 		return
