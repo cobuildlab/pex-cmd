@@ -19,24 +19,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
-//CmdUploadFile Command to upload a merchant file to the database
-var CmdUploadFile = &cobra.Command{
+//CommandUpdate downloads and updates delta files
+var CommandUpdate = &cobra.Command{
 	Use:   "file [string]",
-	Short: "Upload a merchant file to the database",
-	Long:  "Upload a merchant file to the database",
+	Short: "Update Delta Files",
+	Long:  "Upload Delta Files",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-
-		productsRemoteID, err := products.GetIDs()
-		if err != nil {
-			log.Println("ERROR Obtaining the Product Ids", err)
-			return
-		}
-
 		for i, v := range args {
 			log.Println("╭─Uploading", v, "...", fmt.Sprintf("%d/%d", i+1, len(args)))
 
 			start := time.Now()
+
+			productsRemoteID, err := products.GetIDs()
+			if err != nil {
+				return
+			}
 
 			totalProductsUpload, totalProductsUpdated, totalProductsFailed, err := UploadFile(v, productsRemoteID, Verbose)
 			if err != nil {

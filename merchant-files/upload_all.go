@@ -2,6 +2,7 @@ package merchants
 
 import (
 	"fmt"
+	"github.com/cobuildlab/pex-cmd/services/products"
 	"io/ioutil"
 	"log"
 	"os"
@@ -57,6 +58,11 @@ var CmdUploadAll = &cobra.Command{
 
 		var preFile utils.FileInfo
 
+		productsRemoteID, err := products.GetIDs()
+		if err != nil {
+			return
+		}
+
 		startT := time.Now()
 		var totalProductsUploadT, totalProductsUpdatedT, totalProductsFailedT uint64
 		for i := 0; len(fileList) != 0; i++ {
@@ -73,8 +79,8 @@ var CmdUploadAll = &cobra.Command{
 			log.Println("╭─Uploading", v.Name, "...", fmt.Sprintf("%d/%d", i+1, countFiles))
 
 			start := time.Now()
-
-			totalProductsUpload, totalProductsUpdated, totalProductsFailed, err := UploadFile(v.Name, Verbose)
+			Verbose = true
+			totalProductsUpload, totalProductsUpdated, totalProductsFailed, err := UploadFile(v.Name, productsRemoteID, Verbose)
 			if err != nil {
 				log.Println(err)
 

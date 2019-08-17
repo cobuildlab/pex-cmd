@@ -3,6 +3,8 @@ package products
 import (
 	"github.com/cobuildlab/pex-cmd/databases"
 	"github.com/cobuildlab/pex-cmd/models"
+	"time"
+	"log"
 )
 
 //GetIDs Get all product IDs
@@ -21,11 +23,13 @@ func GetIDs() (productIDList []string, err error) {
 		Fields:   []string{"_id"},
 	}
 
+	startT := time.Now()
+	log.Println("GetIDs:start time:", startT);
 	result, err := databases.SearchElement(db, queryDB)
 	if err != nil {
 		return
 	}
-
+	log.Println("GetIDs:dyration:", time.Since(startT));
 	if err != nil {
 		return
 	}
