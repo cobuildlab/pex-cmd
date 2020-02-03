@@ -37,7 +37,6 @@ var CmdUploadFile = &cobra.Command{
 			log.Println("╭─Uploading", v, "...", fmt.Sprintf("%d/%d", i+1, len(args)))
 
 			start := time.Now()
-
 			totalProductsUpload, totalProductsUpdated, totalProductsFailed, err := UploadFile(v, productsRemoteID, Verbose)
 			if err != nil {
 				log.Println(err)
@@ -58,7 +57,6 @@ var CmdUploadFile = &cobra.Command{
 func UploadFile(filename string, productsRemoteID []string, verbose bool) (totalProductsUpload, totalProductsUpdated, totalProductsFailed uint64, err error) {
 	var merchant utils.Merchant
 	var product models.Product
-	var wg sync.WaitGroup
 
 	pathFile := filepath.Join(DecompressPath, filename)
 
@@ -67,22 +65,8 @@ func UploadFile(filename string, productsRemoteID []string, verbose bool) (total
 		return
 	}
 
-	//fileXML, err := os.Open(pathFile)
-	//if err != nil {
-	//	return
-	//}
-	//
-	//countProduct, err := CountProductsInMerchantFile(fileXML)
-	//if err != nil {
-	//	return
-	//}
-	//
-	//log.Println("├─⇢ Product Counter:", countProduct)
-	//fileXML.Close()
-
 	dbMerchants := databases.OpenDB(clientDB, databases.DBNameMerchants)
 	dbProducts := databases.OpenDB(clientDB, databases.DBNameProducts)
-	log.Println("├─⇢ Getting products IDs:", pathFile)
 
 	log.Println("├─⇢ Opening:", pathFile)
 	fileXML, err := os.Open(pathFile)
@@ -103,8 +87,11 @@ func UploadFile(filename string, productsRemoteID []string, verbose bool) (total
 	}
 	defer fileXML.Close()
 
+	// Loading Products
 	dec := xml.NewDecoder(fileXML)
-
+	var wg sync.WaitGroup
+	productsDebuggerMap := make(map[string]int64)
+	routinesCounter := 0
 	for {
 		token, err := dec.Token()
 		if err == io.EOF {
@@ -119,7 +106,6 @@ func UploadFile(filename string, productsRemoteID []string, verbose bool) (total
 			switch start.Name.Local {
 			case "product":
 				//Save products
-
 				databases.QueueWriter.Wait()
 
 				if err = dec.DecodeElement(&product, &start); err != nil {
@@ -135,7 +121,12 @@ func UploadFile(filename string, productsRemoteID []string, verbose bool) (total
 				}
 
 				wg.Add(1)
-				go uploadProduct(product, merchant, dbProducts, &totalProductsUpload, &totalProductsUpdated, &totalProductsFailed, productsRemoteID, &wg)
+				go uploadProduct(product, merchant, dbProducts, &totalProductsUpload, &totalProductsUpdated, &totalProductsFailed, productsRemoteID, &wg, pathFile, productsDebuggerMap)
+
+				if routinesCounter%5 == 0 {
+					wg.Wait()
+					time.Sleep(1 * time.Second)
+				}
 			}
 		}
 	}
@@ -144,14 +135,13 @@ func UploadFile(filename string, productsRemoteID []string, verbose bool) (total
 
 	os.Remove("data/rakuten/decompress/" + filename)
 	os.Remove("data/rakuten/" + filename + ".gz")
-
 	return
 }
 
-func uploadProduct(product models.Product, merchantLocal utils.Merchant, dbProducts databases.DB, totalProductsUpload, totalProductsUpdated, totalProductsFailed *uint64, productsRemoteID []string, wg *sync.WaitGroup) (err error) {
+// Upload a product to the database
+func uploadProduct(product models.Product, merchantLocal utils.Merchant, dbProducts databases.DB, totalProductsUpload, totalProductsUpdated, totalProductsFailed *uint64, productsRemoteID []string, wg *sync.WaitGroup, pathFile string, productMap map[string]int64) (err error) {
 	defer wg.Done()
 
-	var countFailed uint
 	var exists bool
 	var productRemote models.Product
 	var productRemoteREV string
@@ -161,91 +151,58 @@ func uploadProduct(product models.Product, merchantLocal utils.Merchant, dbProdu
 		Name: merchantLocal.MerchantName,
 	}
 
-ForProduct:
-	for {
+	for _, v := range productsRemoteID {
+		if v == product.ID {
 
-		for _, v := range productsRemoteID {
-			if v == product.ID {
-
-				var result interface{}
-				err = databases.ReadElement(dbProducts, product.ID, &result, models.OptionsDB{})
-				if err != nil {
-					if countFailed >= 5 {
-						continue ForProduct
-					}
-					atomic.AddUint64(totalProductsFailed, 1)
-					return
-
-				}
-				if result != nil {
-					exists = true
-
-					productRemoteREV = result.(map[string]interface{})["_rev"].(string)
-					if err = mapstructure.Decode(result, &productRemote); err != nil {
-						if countFailed >= 5 {
-							continue ForProduct
-						}
-						return
-					}
-					productRemote.ID = result.(map[string]interface{})["_id"].(string)
-
-				}
-				break
-			}
-		}
-
-		if err != nil {
-			if Verbose {
-				log.Printf("├──⇢+ Error: %s Product #%s, Retrying\n", err.Error(), product.ID)
-			}
-			if countFailed >= 5 {
-				countFailed++
-				continue ForProduct
-			}
-			atomic.AddUint64(totalProductsFailed, 1)
-			return
-		}
-
-		if exists {
-			if productRemote != product {
-				_, err = databases.UpdateElement(dbProducts, product.ID, productRemoteREV, product)
-				if err != nil {
-					if Verbose {
-						log.Printf("├──⇢+ Error: %s Product #%s, Retrying\n", err.Error(), product.ID)
-					}
-					if countFailed >= 5 {
-						countFailed++
-						continue ForProduct
-					}
-					atomic.AddUint64(totalProductsFailed, 1)
-					return
-				}
-				if Verbose {
-					log.Printf("├──⇢+ Success: Product #%s, Updated\n", product.ID)
-				}
-				atomic.AddUint64(totalProductsUpdated, 1)
-			}
-		} else {
-			_, _, err = databases.CreateElement(dbProducts, product)
+			var result interface{}
+			err = databases.ReadElement(dbProducts, product.ID, &result, models.OptionsDB{})
 			if err != nil {
-				if Verbose {
-					log.Printf("├──⇢+ Error: %s Product #%s, Retrying\n", err.Error(), product.ID)
-				}
-				if countFailed >= 5 {
-					countFailed++
-					continue ForProduct
-				}
-				atomic.AddUint64(totalProductsFailed, 1)
+				log.Printf("├──⇢+ Error: %s Product #%s", err.Error(), product.ID)
 				return
 			}
-			if Verbose {
-				log.Printf("├──⇢+ Success: Product #%s, Uploaded\n", product.ID)
+
+			if result != nil {
+				exists = true
+				productRemoteREV = result.(map[string]interface{})["_rev"].(string)
+				if err = mapstructure.Decode(result, &productRemote); err != nil {
+					log.Printf("├──⇢+ Error on productRemoteREV: %s Product #%s", err.Error(), product.ID)
+					return
+				}
+				productRemote.ID = result.(map[string]interface{})["_id"].(string)
 			}
-			atomic.AddUint64(totalProductsUpload, 1)
+			break
 		}
-		break
 	}
 
+	if exists {
+		if productRemote != product {
+			_, err = databases.UpdateElement(dbProducts, product.ID, productRemoteREV, product)
+			if err != nil {
+				log.Printf("├──⇢+ Error on UpdateElement: %s Product #%s, Retrying\n", err.Error(), product.ID)
+				return
+			}
+			log.Printf("├──⇢+ Success: Product Updated #%s, Updated from %s -- opertaions on this product ID : %s \n", product.ID, pathFile, productMap[product.ID])
+		}
+		atomic.AddUint64(totalProductsUpdated, 1)
+	} else {
+		_, _, err = databases.CreateElement(dbProducts, product)
+		if err != nil {
+			log.Printf("├──⇢+ Error on CreateElement: %s Product #%s ", err.Error(), product.ID)
+			return
+		}
+		log.Printf("├──⇢+ Success: Product Created #%s, Uploaded from %s -- opertaions on this product ID : %s \n", product.ID, pathFile, productMap[product.ID])
+		atomic.AddUint64(totalProductsUpload, 1)
+	}
+	incrementProductsMap(productMap, product.ID)
 	return
+}
 
+func incrementProductsMap(productsMap map[string]int64, productId string) {
+	val, exist := productsMap[productId]
+	if exist == true {
+		val++
+		productsMap[productId] = val
+	} else {
+		productsMap[productId] = 1
+	}
 }

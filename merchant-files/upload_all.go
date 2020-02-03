@@ -79,7 +79,6 @@ var CmdUploadAll = &cobra.Command{
 			log.Println("╭─Uploading", v.Name, "...", fmt.Sprintf("%d/%d", i+1, countFiles))
 
 			start := time.Now()
-			Verbose = true
 			totalProductsUpload, totalProductsUpdated, totalProductsFailed, err := UploadFile(v.Name, productsRemoteID, Verbose)
 			if err != nil {
 				log.Println(err)
@@ -102,7 +101,7 @@ var CmdUploadAll = &cobra.Command{
 
 			fileList, err = UploadList()
 			if err != nil {
-				log.Println(err)
+				log.Println("Error uploading file:", err.Error())
 				return
 			}
 

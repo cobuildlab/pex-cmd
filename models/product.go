@@ -16,6 +16,7 @@ type QueryProduct struct {
 type Product struct {
 	ID   string `xml:"product_id,attr" json:"_id,omitempty"`
 	Name string `xml:"name,attr" json:"name,omitempty"`
+	Rev  string `xml:"_rev,attr,omitempty" json:"_rev,omitempty"`
 
 	SkuNumber    string `xml:"sku_number,attr" json:"skuNumber,omitempty"`
 	Manufacturer string `xml:"manufacturer_name,attr" json:"manufacturer,omitempty"`
@@ -75,4 +76,10 @@ type Product struct {
 	// // Attributes struct {}
 
 	Modification string `xml:"modification" json:"modification,omitempty"`
+}
+
+type RemoteProduct struct {
+	ID        string
+	ProductId string
+	Rev       string
 }

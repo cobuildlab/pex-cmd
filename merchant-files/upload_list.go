@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"path/filepath"
+	"sort"
 
 	"github.com/cobuildlab/pex-cmd/utils"
 	"github.com/spf13/cobra"
@@ -37,7 +38,7 @@ var CmdUploadList = &cobra.Command{
 }
 
 //UploadList List the available merchants files to upload
-func UploadList() (filesXML []utils.FileInfo, err error) {
+func UploadList() (filesList []utils.FileInfo, err error) {
 	files, err := ioutil.ReadDir(DecompressPath)
 	if err != nil {
 		return
@@ -52,10 +53,14 @@ func UploadList() (filesXML []utils.FileInfo, err error) {
 				fileXML.Size = file.Size()
 				fileXML.ModTime = file.ModTime()
 
-				filesXML = append(filesXML, fileXML)
+				filesList = append(filesList, fileXML)
 			}
 		}
 	}
+
+	sort.Slice(filesList, func(i, j int) bool {
+		return filesList[i].Size > filesList[j].Size
+	})
 
 	return
 }

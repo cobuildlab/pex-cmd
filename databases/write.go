@@ -16,9 +16,9 @@ func CreateElement(db DB, element interface{}) (id string, rev string, err error
 	defer QueueWriter.Done(1)
 
 	id, rev, err = db.CreateDocument(element)
-	if err != nil {
-		err = errors.ErrorCreateDocument
-	}
+	//if err != nil {
+	//	err = errors.ErrorCreateDocument
+	//}
 
 	return
 }
@@ -29,9 +29,9 @@ func UpdateElement(db DB, id string, rev string, element interface{}) (newRev st
 	defer QueueWriter.Done(1)
 
 	newRev, err = db.UpdateDocument(id, rev, element)
-	if err != nil {
-		err = errors.ErrorUpdateDocument
-	}
+	//if err != nil {
+	//	err = errors.ErrorUpdateDocument
+	//}
 
 	return
 }

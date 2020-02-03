@@ -81,6 +81,8 @@ ForCountProduct:
 
 //UploadMerchantInMerchantFile Upload the merchant of a Merchant file
 func UploadMerchantInMerchantFile(mf *os.File, dbMerchants databases.DB) (merchant utils.Merchant, err error) {
+	log.Println("UploadMerchantInMerchantFile:")
+
 	dec := xml.NewDecoder(mf)
 
 ForDecodeMerchant:

@@ -12,17 +12,16 @@ var LimitSize uint64
 
 func init() {
 	CmdDownloadAll.Flags().Uint64VarP(&LimitSize, "limitsize", "l", 9999999999, "Limit file size")
-
 	CmdDownload.AddCommand(CmdDownloadAll)
-	CmdDownload.AddCommand(CmdDownloadFile)
-	CmdDownload.AddCommand(CmdDownloadList)
-
-	CmdUploadFile.Flags().BoolVarP(&Verbose, "verbose", "v", false, "Verbose output")
+	//CmdDownload.AddCommand(CmdDownloadFile)
+	//CmdDownload.AddCommand(CmdDownloadList)
+	//CmdUploadFile.Flags().BoolVarP(&Verbose, "verbose", "v", false, "Verbose output")
+	// alacret
+	CmdUpload.AddCommand(UploadProductsCMD)
+	//CmdUpload.AddCommand(CmdUploadList)
+	//CmdUpload.AddCommand(CmdUploadCount)
+	//CmdUpload.AddCommand(CmdUploadFile)
 	CmdUploadAll.Flags().BoolVarP(&Verbose, "verbose", "v", false, "Verbose output")
-
-	CmdUpload.AddCommand(CmdUploadList)
-	CmdUpload.AddCommand(CmdUploadCount)
-	CmdUpload.AddCommand(CmdUploadFile)
 	CmdUpload.AddCommand(CmdUploadAll)
 
 	RootMFCmd.AddCommand(CmdDownload)

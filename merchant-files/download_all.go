@@ -38,6 +38,7 @@ var CmdDownloadAll = &cobra.Command{
 			log.Println("The process could not be executed because of the existence of the file download.lock, PID From the creator : [" + string(pid) + "]")
 			os.Exit(0)
 		}
+		log.Println("There is not download.lock file, we can move forward and create one.")
 
 		lockFile, err := os.Create("./download.lock")
 		if err != nil {
@@ -46,6 +47,7 @@ var CmdDownloadAll = &cobra.Command{
 		}
 		lockFile.WriteString(strconv.Itoa(os.Getpid()))
 		lockFile.Close()
+		log.Println("'download.lock' file created!")
 
 		log.Println("* Limit file size:", LimitSize)
 
