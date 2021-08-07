@@ -7,7 +7,7 @@ RUN go get -u github.com/golang/dep/cmd/dep
 RUN dep ensure -v
 EXPOSE 8080
 
-FROM alpine:latest  
+FROM alpine:3  
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 COPY --from=builder /go/src/github.com/4geeks/pex-cmd/.env .
